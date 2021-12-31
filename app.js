@@ -218,7 +218,7 @@ const app = {
 
         // tìm kiếm
         searchMp3.oninput = function (e) {
-            let ApiUrl = `http://ac.mp3.zing.vn/complete?type=artist,song,key,code&num=500&query=${e.target.value.trim()}`;
+            let ApiUrl = `https://ac.zingmp3.vn/complete?type=artist,song,key,code&num=500&query=${e.target.value.trim()}`;
             if (e.target.value != "") {
                 $(".list_song_search").classList.add("active");
             } else {
