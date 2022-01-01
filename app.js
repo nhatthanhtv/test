@@ -31,7 +31,7 @@ const app = {
     isRandom: false,
     isRepeat: false,
 
-    songList: [],
+    // songList: [],
 
     listTopMp3: [],
 
@@ -217,8 +217,8 @@ const app = {
         };
 
         // tìm kiếm
-        searchMp3.oninput = function (e) {
-            let ApiUrl = `https://ac.zingmp3.vn/complete?type=artist,song,key,code&num=500&query=${e.target.value.trim()}`;
+        searchMp3.onchange = function (e) {
+            let ApiUrl = `https://api-music-tnt.herokuapp.com/search?namesong=${e.target.value.trim()}`;
             if (e.target.value != "") {
                 $(".list_song_search").classList.add("active");
             } else {
@@ -227,12 +227,11 @@ const app = {
 
             _this.searchMp3Api(ApiUrl);
         };
-        searchMp3.onchange = function (e) {
-            _this.clickItemSearch();
-            e.target.value = ''
+        // searchMp3.onchange = function (e) {
+        //         // e.target.value = ''
 
-        };
-        // click bài hát search
+        // };
+        // // click bài hát search
     },
 
     clickItemSearch: function () {
@@ -248,6 +247,7 @@ const app = {
                     path: `https://api.mp3.zing.vn/api/streaming/audio/${cha.getAttribute("id-song")}/128`,
                     image: cha.querySelector(".songs-item-search").src,
                 };
+                // console.log(songInfo);
                 _this.songs.unshift(songInfo)
                 _this.loadCurrentSong();
                 _this.renderSongs();
@@ -258,32 +258,30 @@ const app = {
         });
     },
 
-    searchMp3Api: function (dataSearch) {
-        const list = fetch(dataSearch)
-            .then((listSongs) => listSongs.json())
-            .then((dataSongs) => {
-                let a = dataSongs.data[0].song;
-
-                this.songList = a;
+    searchMp3Api: function (keyworkSearch) {
+        fetch(keyworkSearch)
+            .then(data => data.json())
+            .then(data => {
+                
+                // console.log(data);
+                this.renderSongSearch(data.data.songs)
             })
-            .then((items) => {
-                this.renderSongSearch();
-            });
-    },
+        },
 
-    renderSongSearch: function () {
+    renderSongSearch: function (dataSearch) {
         // viewSearch
-        let abc = this.songList.map((item) => {
+        let abc = dataSearch.map((item) => {
+            // console.log(item);
             return `
             <li class="list_song_search-item">
-                        <div class="song songs__search" id-song=${item.id}>
-                            <img src="https://photo-zmp3.zadn.vn/${item.thumb}" alt="" class="song-img songs-item-search">
+                        <div class="song songs__search" id-song=${item.encodeId}>
+                            <img src="${item.thumbnailM}" alt="" class="song-img songs-item-search">
                             <div class="song-content">
                                 <h3 class="song-content-heading">
-                                    ${item.name}
+                                    ${item.title}
                                 </h3>
                                 <p class="song-content-author">
-                                    ${item.artist}
+                                    ${item.artistsNames}
                                 </p>
                             </div>
                         </div>
@@ -292,32 +290,48 @@ const app = {
         });
         // console.log(abc.join(''));
         listSongsSearch.innerHTML = abc.join("");
+        this.clickItemSearch();
+
     },
 
     getSongTopZingMp3: function () {
-        fetch(
-            "https://mp3.zing.vn/xhr/chart-realtime?songId=0&videoId=0&albumId=0&chart=song&time=-1"
-        )
-            .then((songs) => songs.json())
-            .then((dataSongs) => {
-                let data = dataSongs.data.song;
-                // console.log(dataSongs);
-                this.listTopMp3 = data;
-            })
-            .then((song) => {
-                this.addListSongToptoAPP();
-            });
+        // fetch(
+        //     "https://api-music-tnt.herokuapp.com/gettop"
+        // )
+        //     .then((songs) => songs.json())
+        //     .then((dataSongs) => {
+        //         // let data = dataSongs.data.song;
+        //         let idList = dataSongs.data[0].items[0].encodeId
+        //         console.log(dataSongs.data[0].items[0].encodeId);
+
+        //         // return fetch(`https://api-music-tnt.herokuapp.com/getplaylists?idlist=ZWZB969E`)
+        //         //     .then(data => data.json())
+        //         //     .then(data => data.data.song.items)
+
+                
+        //     })
+        //     .then(items => console.log(items))
+        //     // .then((song) => {
+        //     //     this.addListSongToptoAPP();
+        //     // });
+             fetch(`https://api-music-tnt.herokuapp.com/getplaylists?idlist=ZWZB969E`)
+            .then(data => data.json())
+            .then(data => this.addListSongToptoAPP(data.data.song.items))
     },
 
-    addListSongToptoAPP: function () {
-        const listTopMp3s = this.listTopMp3.map((song) => {
+    addListSongToptoAPP: function (listMp3Top) {
+        const listTopMp3s =listMp3Top.map((song) => {
             // console.log(song);
+            function getMP3(id){
+                return `https://music-player-pink.vercel.app/api/song?id=${id}`
+            }
             return {
-                name: song.name,
-                singer: song.artists_names,
-                path: `http://api.mp3.zing.vn/api/streaming/audio/${song.id}/128`,
-                image: song.thumbnail,
+                name: song.title,
+                singer: song.artistsNames,
+                path: `http://api.mp3.zing.vn/api/streaming/audio/${song.encodeId}/128`,
+                image: song.thumbnailM,
             };
+            
         });
         this.songs = listTopMp3s;
         this.loadCurrentSong();
