@@ -322,13 +322,11 @@ const app = {
     addListSongToptoAPP: function (listMp3Top) {
         const listTopMp3s =listMp3Top.map((song) => {
             // console.log(song);
-            function getMP3(id){
-                return `https://music-player-pink.vercel.app/api/song?id=${id}`
-            }
+          
             return {
                 name: song.title,
                 singer: song.artistsNames,
-                path: `http://api.mp3.zing.vn/api/streaming/audio/${song.encodeId}/128`,
+                path: `https://api.mp3.zing.vn/api/streaming/audio/${song.encodeId}/128`,
                 image: song.thumbnailM,
             };
             
@@ -371,8 +369,19 @@ const app = {
             });
         }, 500);
     },
+    getMp3 : function(id,callback) {        
+         fetch(`https://api-music-tnt.herokuapp.com/getsong?idsong=${id}`)
+         .then(data => data.json())
+         .then(item => item.data[128])
+         .then(callback)
+     },
 
     start: function () {
+        
+        let a = this.getMp3('ZU96I8D9',function (item){
+            return item
+        })
+        console.log(a);
         this.getSongTopZingMp3();
         // this.addListSongToptoAPP()
         this.renderSongs();
