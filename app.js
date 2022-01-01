@@ -331,7 +331,7 @@ const app = {
             };
             
         });
-        console.log(listTopMp3s);
+        // console.log(listTopMp3s);
         this.songs = listTopMp3s;
         this.loadCurrentSong();
         this.renderSongs();
