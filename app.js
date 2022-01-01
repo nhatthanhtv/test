@@ -370,19 +370,11 @@ const app = {
             });
         }, 500);
     },
-    getMp3 : function(id,callback) {        
-         fetch(`https://api-music-tnt.herokuapp.com/getsong?idsong=${id}`)
-         .then(data => data.json())
-         .then(item => item.data[128])
-         .then(callback)
-     },
+    
 
     start: function () {
         
-        let a = this.getMp3('ZU96I8D9',function (item){
-            return item
-        })
-        console.log(a);
+       
         this.getSongTopZingMp3();
         // this.addListSongToptoAPP()
         this.renderSongs();
