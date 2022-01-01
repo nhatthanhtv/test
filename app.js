@@ -36,6 +36,7 @@ const app = {
     listTopMp3: [],
 
     songs: [
+        
         // {
         //     name: "Light It Up",
         //     singer: "Robin Hustin x TobiMorrow",
@@ -226,9 +227,9 @@ const app = {
             }
 
             _this.searchMp3Api(ApiUrl);
+                e.target.value = ''
         };
         // searchMp3.onchange = function (e) {
-        //         // e.target.value = ''
 
         // };
         // // click bài hát search
@@ -295,43 +296,49 @@ const app = {
     },
 
     getSongTopZingMp3: function () {
-        // fetch(
-        //     "https://api-music-tnt.herokuapp.com/gettop"
-        // )
-        //     .then((songs) => songs.json())
-        //     .then((dataSongs) => {
-        //         // let data = dataSongs.data.song;
-        //         let idList = dataSongs.data[0].items[0].encodeId
-        //         console.log(dataSongs.data[0].items[0].encodeId);
-
-        //         // return fetch(`https://api-music-tnt.herokuapp.com/getplaylists?idlist=ZWZB969E`)
-        //         //     .then(data => data.json())
-        //         //     .then(data => data.data.song.items)
-
-                
-        //     })
-        //     .then(items => console.log(items))
-        //     // .then((song) => {
-        //     //     this.addListSongToptoAPP();
-        //     // });
+       
              fetch(`https://api-music-tnt.herokuapp.com/getplaylists?idlist=ZWZB969E`)
             .then(data => data.json())
             .then(data => this.addListSongToptoAPP(data.data.song.items))
     },
 
     addListSongToptoAPP: function (listMp3Top) {
+        
+
+
         const listTopMp3s =listMp3Top.map((song) => {
-            // console.log(song);
-          
+            
             return {
                 name: song.title,
                 singer: song.artistsNames,
                 path: `https://api.mp3.zing.vn/api/streaming/audio/${song.encodeId}/128`,
                 image: song.thumbnailM,
+                id:song.encodeId
             };
             
+            
         });
-        // console.log(listTopMp3s);
+
+            listTopMp3s.map((song) => {
+               fetch(`http://api-music-tnt.herokuapp.com/getsong?idsong=${song.id}`)
+                    .then(data => data.json())
+                    .then(data => renderlist(data.data[128], song))
+
+                let renderlist = function(source, info){
+                    return {
+                        name: info.name,
+                        singer: info.singer,
+                        path: source,
+                        image: info.singer,
+                        id: info.id
+                    }
+                }
+                console.log(renderlist);
+            
+                
+                    
+        })
+     
         this.songs = listTopMp3s;
         this.loadCurrentSong();
         this.renderSongs();
@@ -371,7 +378,11 @@ const app = {
         }, 500);
     },
     
-
+    getSourceMp3: function () {
+         fetch('https://api-music-tnt.herokuapp.com/getsong?idsong=ZO9AEOF6')
+        .then(item => item.json())
+        .then(data => console.log(data.data[abc]))
+    },
     start: function () {
         
        
@@ -388,3 +399,6 @@ const app = {
     },
 };
 app.start();
+
+
+
