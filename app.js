@@ -50,7 +50,7 @@ const app = {
         //     image: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/16788ee5-3436-474a-84fd-6616063a1a9a/de2f4eq-bc67fa17-8dae-46a9-b85d-fe8082c34841.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzE2Nzg4ZWU1LTM0MzYtNDc0YS04NGZkLTY2MTYwNjNhMWE5YVwvZGUyZjRlcS1iYzY3ZmExNy04ZGFlLTQ2YTktYjg1ZC1mZTgwODJjMzQ4NDEucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.dABuqANeQEs6FBfslZHdG1lW_gDwzf61yqiSABROSx0",
         // }
     ],
-
+    
     defineProperties: function () {
         Object.defineProperty(this, "currentSong", {
             get: function () {
@@ -303,45 +303,48 @@ const app = {
     },
 
     addListSongToptoAPP: function (listMp3Top) {
+        let listtesst = []
         
 
-
-        const listTopMp3s =listMp3Top.map((song) => {
-            
-            return {
-                name: song.title,
-                singer: song.artistsNames,
-                path: `https://api.mp3.zing.vn/api/streaming/audio/${song.encodeId}/128`,
-                image: song.thumbnailM,
-                id:song.encodeId
-            };
-            
-            
-        });
-
-            listTopMp3s.map((song) => {
-               fetch(`http://api-music-tnt.herokuapp.com/getsong?idsong=${song.id}`)
-                    .then(data => data.json())
-                    .then(data => renderlist(data.data[128], song))
-
-                let renderlist = function(source, info){
+        listMp3Top.map(item => {
+            const _this =this
+            const promise = new Promise((resolve, reject) => {
+                fetch(`https://api-music-tnt.herokuapp.com/getsong?idsong=${item.encodeId}`)
+                        .then(data => data.json())
+                        .then(data => resolve(data.data[128]))
+            })
+            promise
+                .then(function (linkSourceMp3) {
                     return {
-                        name: info.name,
-                        singer: info.singer,
-                        path: source,
-                        image: info.singer,
-                        id: info.id
+                        name: item.title,
+                        singer: item.artistsNames,
+                        path: linkSourceMp3,
+                        image: item.thumbnailM,
+                        id:item.encodeId
                     }
-                }
-                console.log(renderlist);
-            
-                
+                })
+                .then(function (itemsList) {
                     
+                    listtesst.push(itemsList)
+                    const lengthList = listMp3Top.length
+                    if (lengthList == listtesst.length){
+                         _this.loadCurrentSong();
+                    _this.renderSongs();
+                    }
+                   
+
+
+                })
+
+                .then(function () {
+                    
+                })
         })
+        
+        
      
-        this.songs = listTopMp3s;
-        this.loadCurrentSong();
-        this.renderSongs();
+        this.songs = listtesst;
+        
     },
 
     nextSong: function () {
